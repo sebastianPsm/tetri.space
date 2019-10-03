@@ -20,7 +20,7 @@ api_help = {
         "description": "Create new tetri.space instance",
         "arguments": ["Number of fields", "Field height", "Field width"],
         "return": [
-          "200 - Everything works as planned - tetri.space instance id"
+          "200 - Everything works as planned - tetri.space instance id and so called field keys to control the fields"
         ]
       },
       {
@@ -37,6 +37,14 @@ api_help = {
         "arguments": None,
         "return": [
           "200 - Everything works as planned - Matrix with shape: [#fields, height, width]"
+        ]
+      },
+      {
+        "path": "/v1.0/delete_instance",
+        "description": "Delete a instance",
+        "arguments": ["tetri.space instance id"],
+        "return": [
+          "200 - Everything works as planned"
         ]
       }
     ]
@@ -61,13 +69,14 @@ def create_app():
     except ValueError as vee:
       return str(vee), 402
 
-    return jsonify(instance_id)
+    return jsonify({"instance_id": instance_id, "field_keys": INSTANCES[instance_id].field_keys})
   
   @app.route("/v1.0/list_instances")
   def list_instance():
     return jsonify(list(map(lambda x: { 
       "id": x,
       "fields": INSTANCES[x].fields,
+      "states": INSTANCES[x].states,
       "field_height": INSTANCES[x].field_height,
       "field_width": INSTANCES[x].field_width,
       "stat_count_moves": INSTANCES[x].stat_count_moves,
@@ -76,11 +85,16 @@ def create_app():
       "current_tetrominos_x": list(map(lambda t: t.x, INSTANCES[x].current_tetrominos)),
       "current_tetrominos_y": list(map(lambda t: t.y, INSTANCES[x].current_tetrominos)),
       "next_tetrominos": list(map(lambda t: t.type_string, INSTANCES[x].next_tetrominos))
-
      }, INSTANCES)))
   
   @app.route("/v1.0/get_field/<uuid:instance_id>")
   def get_field(instance_id):
     return jsonify(INSTANCES[str(instance_id)].field.tolist())
+  
+  @app.route("/v1.0/delete_instance/<uuid:instance_id>")
+  def delete_instance(instance_id):
+    INSTANCES[str(instance_id)].delete()
+    INSTANCES.pop(str(instance_id), 0)
+    return jsonify("OK")
 
-  return app
+  return app    

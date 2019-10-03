@@ -1,4 +1,6 @@
+import uuid
 import random
+import enum
 import numpy as np
 
 # Tetrominos: I, J, L, O, S, T, Z
@@ -15,27 +17,12 @@ O = np.array([[4,4],[4,4]])
 S = np.array([[5,5,0],[0,5,5]])
 T = np.array([[6,6,6],[0,6,0]])
 Z = np.array([[0,7,7],[7,7,0]])
-type_strings = ["I", "J", "L", "O", "S", "T", "Z"]
+type_strings = {"I":I, "J":J, "L":L, "O":O, "S":S, "T":T, "Z":Z}
 
 class Tetromino:
   def __init__(self, type_string, x, y, rotations=0):
     self.type_string = type_string
-    if type_string == "I":
-      self.type = I
-    elif type_string == "J":
-      self.type = J
-    elif type_string == "L":
-      self.type = L
-    elif type_string == "O":
-      self.type = O
-    elif type_string == "S":
-      self.type = S
-    elif type_string == "T":
-      self.type = T
-    elif type_string == "Z":
-      self.type = Z
-    else:
-      raise ValueError(f"Unknown type string {type_string}")
+    self.type = type_strings[self.type_string]
     
     self.x = x
     self.y = y
@@ -110,6 +97,12 @@ class Tetromino:
     x_size = np.max(pos[1])-np.min(pos[1])
     self.x = int(field_width/2+0.5)-int(x_size/2+0.5)
 
+class FieldState(enum.IntEnum):
+  Initialized = 1 # initial state after the field was created
+  Ready = 2 # field has commited to be ready
+  Running = 3 # field is running
+  Lost = 4 # field has lost
+
 class Core:
   def __init__(self, fields, field_height, field_width):
     if fields < 1:
@@ -123,7 +116,9 @@ class Core:
     self.field_height = field_height
     self.field_width = field_width
     self.step_queue = [[] for field in range(fields)]
+    self.states = [FieldState.Initialized for field in range(fields)]
     self.field = np.zeros((fields, field_height, field_width), dtype=np.int)
+    self.field_keys = { str(uuid.uuid4()):field for field in range(fields)}
 
     self.stat_count_moves = 0
     self.stat_count_tetrominos = 0
@@ -131,10 +126,12 @@ class Core:
     self.current_tetrominos = [self.tetromino_generator(self.field_width) for idx in range(self.fields)]
     self.next_tetrominos = [self.tetromino_generator(self.field_width) for idx in range(self.fields)]
   
+  def delete(self):
+    pass
+  
   def tetromino_generator(self, width):
-    type_strings = ["I","J","L","O","S","T","Z"]
     rotations = [0,1,2,3]
-    tetromino = Tetromino(random.choice(type_strings), 0, 0, random.choice(rotations))
+    tetromino = Tetromino(random.choice(list(type_strings.keys())), 0, 0, random.choice(rotations))
     tetromino.set_in_middle(width)
     
     return tetromino
