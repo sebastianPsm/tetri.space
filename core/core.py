@@ -26,7 +26,7 @@ class Tetromino:
     
     self.x = x
     self.y = y
-    for idx in range(rotations):
+    for _ in range(rotations):
       self.rotate()
   
   def get_boundaries(self):
@@ -44,7 +44,7 @@ class Tetromino:
     y = self.y
 
     _type = self.type
-    if cmd == 1:
+    if cmd == 1 or cmd == 5:
       y += 1
       if y + _type.shape[0] > field_height:
         return False
@@ -78,19 +78,22 @@ class Tetromino:
     return not np.any(np.logical_and(field, c))
   
   def move(self, cmd):
-    if cmd == 1:
+    if cmd == 1 or cmd  == 5: # down
       self.y += 1
-    elif cmd == 2:
+    elif cmd == 2: # left
       self.x -= 1
-    elif cmd == 3:
+    elif cmd == 3: # right
       self.x += 1
-    elif cmd == 4:
+    elif cmd == 4: # rotate
       self.rotate()
     else:
       raise AttributeError(f"{cmd} is not supported")
   
   def rotate(self):
     self.type = np.rot90(self.type, k=-1)
+  
+  def finalize(self):
+    pass
   
   def set_in_middle(self, field_width):
     pos = np.where(self.type)
@@ -165,13 +168,13 @@ class Core:
   
   def move_tetromino(self, field_id, cmd):
     """ Move a tetromino in a certain direction : 0 (no move), 1 (down move), 
-    2 (left move), 3 (right move), 4 (rotate)"""
+    2 (left move), 3 (right move), 4 (rotate), 5 (finalize)"""
     if not self.current_tetrominos[field_id]:
       print("No tetromino")
       return
 
     if not self.test(field_id, cmd):
-      if cmd == 1: # down move
+      if cmd == 1 or cmd == 5: # down move
         teromino = self.current_tetrominos[field_id]
         left, right, top, bottom = teromino.get_boundaries()
         self.field[field_id, top:bottom, left:right] += teromino.type
@@ -179,8 +182,8 @@ class Core:
         self.next_tetrominos[field_id] = self.tetromino_generator(self.field_width)
         return
       return
+
     self.current_tetrominos[field_id].move(cmd)
-    
     self.stat_count_moves += 1
   
   def step(self):
@@ -193,7 +196,14 @@ class Core:
       
       while self.step_queue[field_id]:
         cmd = self.step_queue[field_id].pop(0)
-        self.move_tetromino(field_id, cmd)
+        if cmd == 5:
+          while True:
+            old = self.stat_count_moves
+            self.move_tetromino(field_id, cmd)
+            if old == self.stat_count_moves:
+              break
+        else:
+          self.move_tetromino(field_id, cmd)
 
 if __name__ == "__main__":
   import sys
