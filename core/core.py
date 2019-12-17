@@ -1,13 +1,15 @@
+import sys
 import uuid
 import random
 import enum
 import numpy as np
+import console_viz
 
 # Tetrominos: I, J, L, O, S, T, Z
 #
-# 1 01 10 11 110 111 011
-# 1 01 10 11 011 010 110
-# 1 01 10
+# 1  1 1  11 11  111  11
+# 1  1 1  11  11  1  11 
+# 1  1 1 
 # 1 11 11
 # 
 I = np.array([[1,1,1,1]])
@@ -44,7 +46,9 @@ class Tetromino:
     y = self.y
 
     _type = self.type
-    if cmd == 1 or cmd == 5:
+    if cmd == 0:
+      pass
+    elif cmd == 1 or cmd == 5:
       y += 1
       if y + _type.shape[0] > field_height:
         return False
@@ -78,7 +82,7 @@ class Tetromino:
     return not np.any(np.logical_and(field, c))
   
   def move(self, cmd):
-    if cmd == 1 or cmd  == 5: # down
+    if cmd == 1 or cmd == 5: # down
       self.y += 1
     elif cmd == 2: # left
       self.x -= 1
@@ -101,10 +105,8 @@ class Tetromino:
     self.x = int(field_width/2+0.5)-int(x_size/2+0.5)
 
 class FieldState(enum.IntEnum):
-  Initialized = 1 # initial state after the field was created
-  Ready = 2 # field has commited to be ready
-  Running = 3 # field is running
-  Lost = 4 # field has lost
+  Running = 1 # field is running
+  Lost = 2 # field has lost
 
 class Core:
   def __init__(self, fields, field_height, field_width):
@@ -119,7 +121,7 @@ class Core:
     self.field_height = field_height
     self.field_width = field_width
     self.step_queue = [[] for field in range(fields)]
-    self.states = [FieldState.Initialized for field in range(fields)]
+    self.states = [FieldState.Running for field in range(fields)]
     self.field = np.zeros((fields, field_height, field_width), dtype=np.int)
     self.field_keys = { str(uuid.uuid4()):field for field in range(fields)}
 
@@ -149,23 +151,23 @@ class Core:
       left, right, top, bottom = tetromino.get_boundaries()
       tetrominos[idx, top:bottom, left:right] = tetromino.type
 
-    return console_viz.out(self.field+tetrominos)
+    return console_viz.out(self.field+tetrominos, self.states)
   
   def add_step(self, field_id, cmd, front=False):
     """ Adds a step into the step_queue """
     if len(self.step_queue) < field_id:
       raise LookupError()
-    
+
     if not front:
       self.step_queue[field_id].append(cmd)
     else:
       self.step_queue[field_id].insert(0, cmd)
-  
+
   def test(self, field_id, cmd):
     """ Test if a step in a certain direction will touch the field
     cmd: 0 (no move), 1 (down move), 2 (left move), 3 (right move), 4 (rotate)"""
     return self.current_tetrominos[field_id].test_move(cmd, self.field[field_id])
-  
+
   def move_tetromino(self, field_id, cmd):
     """ Move a tetromino in a certain direction : 0 (no move), 1 (down move), 
     2 (left move), 3 (right move), 4 (rotate), 5 (finalize)"""
@@ -180,23 +182,31 @@ class Core:
         self.field[field_id, top:bottom, left:right] += teromino.type
         self.current_tetrominos[field_id] = self.next_tetrominos[field_id]
         self.next_tetrominos[field_id] = self.tetromino_generator(self.field_width)
+        
+        # check if game is lost
+        if not self.test(field_id, 0):
+          self.states[field_id] = FieldState.Lost
         return
       return
 
     self.current_tetrominos[field_id].move(cmd)
     self.stat_count_moves += 1
-  
+
   def step(self):
     field_order = list(range(self.fields))
     random.shuffle(field_order)
-    
+
+    # process fields randomly
     for field_id in field_order:
+      # if there's no step queued, then continue
       if not self.step_queue[field_id]:
         continue
-      
+
+      # process stepps from queue
       while self.step_queue[field_id]:
         cmd = self.step_queue[field_id].pop(0)
-        if cmd == 5:
+
+        if cmd == 5: # finalize
           while True:
             old = self.stat_count_moves
             self.move_tetromino(field_id, cmd)
@@ -206,14 +216,12 @@ class Core:
           self.move_tetromino(field_id, cmd)
 
 if __name__ == "__main__":
-  import sys
-  import console_viz
   np.set_printoptions(threshold=sys.maxsize)
 
   c = Core(4, field_width=int(12), field_height=int(22))
   c.step()
   print(c)
-  
+
   cmd_array = []
   while True:
     if not len(cmd_array):
