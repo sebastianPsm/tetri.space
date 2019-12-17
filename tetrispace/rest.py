@@ -1,6 +1,6 @@
 import uuid
 from flask import Flask, escape, request, jsonify, abort
-from core import core
+from . import core
 
 INSTANCES = {}
 

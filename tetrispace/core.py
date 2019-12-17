@@ -3,7 +3,7 @@ import uuid
 import random
 import enum
 import numpy as np
-import console_viz
+from . import console_viz
 
 # Tetrominos: I, J, L, O, S, T, Z
 #
