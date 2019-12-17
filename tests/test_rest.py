@@ -1,5 +1,5 @@
 import pytest
-from rest import rest
+from tetrispace import rest
 
 @pytest.fixture
 def client():

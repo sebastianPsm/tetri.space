@@ -1,6 +1,6 @@
 import os
 
-def out(field):
+def out(field, states):
   res = ""
   fields = field.shape[0]
   width = field.shape[2]
@@ -23,5 +23,10 @@ def out(field):
     for x in range(width):
       res += "#"
     res += "# "
+  res += os.linesep
+  
+  res += " "
+  for field_id in range(fields):
+    res += f'{states[field_id]}'.center(width, ' ') + "   "
 
   return res

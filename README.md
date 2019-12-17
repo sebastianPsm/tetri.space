@@ -11,3 +11,6 @@ python3 core/core.py
 ~/workspace/tetri.space$ export FLASK_APP=rest.rest
 ~/workspace/tetri.space$ export FLASK_ENV=development
 ~/workspace/tetri.space$ flask run
+
+## Start client with:
+npm install && npm start
