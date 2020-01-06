@@ -3,6 +3,7 @@
 ## Dependencies:
 - flask
 - numpy
+- windows-curses
 
 ## Start core with:
 python3 core/core.py
@@ -13,4 +14,6 @@ python3 core/core.py
 ~/workspace/tetri.space$ flask run
 
 ## Start client with:
-npm install && npm start
+tbd
+
+![test client](https://github.com/sebastianPsm/tetri.space/raw/client2/img/test%20client.png "test client")
