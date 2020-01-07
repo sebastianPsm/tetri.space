@@ -14,6 +14,14 @@ python3 core/core.py
 ~/workspace/tetri.space$ flask run
 
 ## Start client with:
-tbd
 
-![test client](https://github.com/sebastianPsm/tetri.space/raw/client2/img/test%20client.png "test client")
+Linux:
+    git clone https://github.com/sebastianPsm/tetri.space
+    python3 tetri.space/tetrispace/core.py
+
+Windows:
+    git clone https://github.com/sebastianPsm/tetri.space
+    python3 -m pip install windows-curses
+    python3 tetri.space/tetrispace/core.py
+
+![test client](https://github.com/sebastianPsm/tetri.space/raw/master/img/test%20client.png "test client")
