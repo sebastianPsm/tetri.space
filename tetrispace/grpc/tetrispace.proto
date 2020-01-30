@@ -1,0 +1,51 @@
+syntax = "proto3";
+package tetrispace;
+
+service Tetrispace {
+    // Creates a new tetri.space instance and returns the instance identifier string
+    rpc CreateInstance(InstanceParameter) returns (InstanceAndFields) {}
+    rpc ListInstances(ListInstancesParams) returns (Instances) {}
+    rpc GetInstance(InstanceIdentifier) returns (Instance) {}
+    rpc DeleteInstance(InstanceIdentifier) returns (DeleteInstanceReturn) {}
+    rpc GetField(InstanceIdentifier) returns (Field) {}
+    rpc SetReady(InstanceAndFields) returns (Status) {}
+}
+
+message Status { }
+message DeleteInstanceReturn { }
+message ListInstancesParams { }
+message Field {
+    uint32 fields = 1;
+    uint32 height = 2;
+    uint32 width = 3;
+    repeated uint32 data = 4 [packed=true];
+}
+message Instance {
+    InstanceIdentifier instance_id = 1;
+    uint32 fields = 2;
+    repeated uint32 states = 3;
+    uint32 height = 4;
+    uint32 width = 5;
+    uint32 stat_count_moves = 6;
+    uint32 stat_count_tetrominos = 7;
+    uint32 stat_count_steps = 8;
+    repeated string current_tetrominos = 9;
+    repeated uint32 current_tetrominos_x = 10;
+    repeated uint32 current_tetrominos_y = 11;
+    repeated string next_tetrominos = 12;
+}
+message Instances {
+    repeated Instance list = 1;
+}
+message InstanceAndFields {
+    InstanceIdentifier instance_id = 1;
+    repeated string field_keys = 2;
+}
+message InstanceIdentifier {
+    string uuid = 1;
+}
+message InstanceParameter{
+    uint32 fields = 1;
+    uint32 height = 2;
+    uint32 width = 3;
+}

@@ -4,6 +4,10 @@ import threading
 import curses
 import core
 
+import grpc
+import tetrispace_pb2
+import tetrispace_pb2_grpc
+
 class ConsoleViz:
   def __init__(self, core):
     self.core = core
@@ -110,3 +114,19 @@ class ConsoleViz:
       c = self.screen.getch()
 
     self.exit()
+
+if __name__ == "__main__":
+  channel = grpc.insecure_channel("localhost:5000")
+  stub = tetrispace_pb2_grpc.TetrispaceStub(channel)
+
+  instanceAndFields = stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6, height=24, width=12))
+  print(instanceAndFields)
+
+  instance_id = instanceAndFields.instance_id
+  print(stub.GetInstance(instance_id))
+
+  print(stub.ListInstances(tetrispace_pb2.ListInstancesParams()))
+
+  print(stub.GetField(instance_id))
+  stub.SetReady(instanceAndFields)
+  
