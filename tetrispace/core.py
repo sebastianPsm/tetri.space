@@ -270,11 +270,11 @@ class Core:
 
       self.field[cl_field,:cl_pos+1,:] = np.vstack((np.zeros(self.field_width), self.field[cl_field,:cl_pos,:]))
 
-if __name__ == "__main__":
-  import time
-  import threading
-  import console_viz
-
-  c = Core(16, field_width=int(12), field_height=int(22))
-  cv = console_viz.ConsoleViz(c)
-  cv.start()
+#if __name__ == "__main__":
+#  import time
+#  import threading
+#  import console_viz
+#
+#  c = Core(16, field_width=int(12), field_height=int(22))
+#  cv = console_viz.ConsoleViz(c)
+#  cv.start()

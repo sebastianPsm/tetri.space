@@ -14,6 +14,8 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
         instance_id = str(uuid.uuid4())
 
         self.INSTANCES[instance_id] = core.Core(request.fields, request.height, request.width)
+
+        print(f"CreateInstance, {request.fields}, {request.height}, {request.width}")
     
         field_keys_dict = self.INSTANCES[instance_id].field_keys
         field_keys = [item[0] for item in sorted(field_keys_dict.items(), key=lambda item: item[1])]
@@ -37,14 +39,17 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
                                        next_tetrominos=list(map(lambda t: t.type_string, instance.next_tetrominos)))
 
     def ListInstances(self, request, context):
+        print(f"ListInstances")
         return tetrispace_pb2.Instances(list=list(map(lambda x: self._getInstance(x), self.INSTANCES)))
 
     def GetInstance(self, request, context):
+        print(f"GetInstance, {request.uuid}")
         return self._getInstance(request.uuid)
 
     def DeleteInstance(self, request, context):
         self.INSTANCES[request.uuid].delete()
         self.INSTANCES.pop(request.uuid, 0)
+        print(f"DeleteInstance, {request.uuid}")
         return tetrispace_pb2.DeleteInstanceReturn()
 
     def GetField(self, request, context):
@@ -56,19 +61,23 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
                 for col in row:
                     data.append(col)
 
+        print(f"GetField, {request.uuid}")
         return tetrispace_pb2.Field(fields=instance.fields, height=instance.field_height, width=instance.field_width, data=data)
 
     def SetReady(self, request, context):
         instance_id = request.instance_id.uuid
         for field_key in request.field_keys:
             self.INSTANCES[instance_id].ready(field_key)
+        print(f"SetReady, {request.uuid}")
         return tetrispace_pb2.Status()
 
 if __name__ == "__main__":
+    port = 5000
     logging.basicConfig()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     tetrispace_pb2_grpc.add_TetrispaceServicer_to_server(TetrispaceService(), server)
-    server.add_insecure_port("[::]:5000")
+    server.add_insecure_port(f"[::]:{port}")
+    print(f"Start tetri.space server on port {port}")
     server.start()
     server.wait_for_termination()

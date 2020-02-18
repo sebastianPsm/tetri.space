@@ -9,7 +9,9 @@ import tetrispace_pb2
 import tetrispace_pb2_grpc
 
 class ConsoleViz:
-  def __init__(self, core):
+  def __init__(self, channel):
+    self.stub = tetrispace_pb2_grpc.TetrispaceStub(channel)
+
     self.core = core
     self.field_keys = [item[0] for item in sorted(self.core.field_keys.items(), key=lambda item: item[1])]
     self.screen = curses.initscr()
@@ -117,16 +119,16 @@ class ConsoleViz:
 
 if __name__ == "__main__":
   channel = grpc.insecure_channel("localhost:5000")
-  stub = tetrispace_pb2_grpc.TetrispaceStub(channel)
+  cv = ConsoleViz(channel)
 
-  instanceAndFields = stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6, height=24, width=12))
-  print(instanceAndFields)
+  #instanceAndFields = stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6, height=24, width=12))
+  #print(instanceAndFields)
 
-  instance_id = instanceAndFields.instance_id
-  print(stub.GetInstance(instance_id))
+  #instance_id = instanceAndFields.instance_id
+  #print(stub.GetInstance(instance_id))
 
-  print(stub.ListInstances(tetrispace_pb2.ListInstancesParams()))
+  #print(stub.ListInstances(tetrispace_pb2.ListInstancesParams()))
 
-  print(stub.GetField(instance_id))
-  stub.SetReady(instanceAndFields)
+  #print(stub.GetField(instance_id))
+  #stub.SetReady(instanceAndFields)
   
