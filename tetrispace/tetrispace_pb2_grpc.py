@@ -17,7 +17,17 @@ class TetrispaceStub(object):
     self.CreateInstance = channel.unary_unary(
         '/tetrispace.Tetrispace/CreateInstance',
         request_serializer=tetrispace__pb2.InstanceParameter.SerializeToString,
-        response_deserializer=tetrispace__pb2.InstanceAndFields.FromString,
+        response_deserializer=tetrispace__pb2.InstanceIdentifier.FromString,
+        )
+    self.GetField = channel.unary_unary(
+        '/tetrispace.Tetrispace/GetField',
+        request_serializer=tetrispace__pb2.InstanceIdentifier.SerializeToString,
+        response_deserializer=tetrispace__pb2.FieldKey.FromString,
+        )
+    self.GetFieldStatusStream = channel.unary_stream(
+        '/tetrispace.Tetrispace/GetFieldStatusStream',
+        request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
+        response_deserializer=tetrispace__pb2.FieldStatus.FromString,
         )
     self.ListInstances = channel.unary_unary(
         '/tetrispace.Tetrispace/ListInstances',
@@ -34,11 +44,6 @@ class TetrispaceStub(object):
         request_serializer=tetrispace__pb2.InstanceIdentifier.SerializeToString,
         response_deserializer=tetrispace__pb2.DeleteInstanceReturn.FromString,
         )
-    self.GetField = channel.unary_unary(
-        '/tetrispace.Tetrispace/GetField',
-        request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
-        response_deserializer=tetrispace__pb2.Field.FromString,
-        )
     self.SetReady = channel.unary_unary(
         '/tetrispace.Tetrispace/SetReady',
         request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
@@ -53,6 +58,20 @@ class TetrispaceServicer(object):
   def CreateInstance(self, request, context):
     """Creates a new tetri.space instance and returns the instance identifier string
     """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def GetField(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def GetFieldStatusStream(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -78,13 +97,6 @@ class TetrispaceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def GetField(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
   def SetReady(self, request, context):
     # missing associated documentation comment in .proto file
     pass
@@ -98,7 +110,17 @@ def add_TetrispaceServicer_to_server(servicer, server):
       'CreateInstance': grpc.unary_unary_rpc_method_handler(
           servicer.CreateInstance,
           request_deserializer=tetrispace__pb2.InstanceParameter.FromString,
-          response_serializer=tetrispace__pb2.InstanceAndFields.SerializeToString,
+          response_serializer=tetrispace__pb2.InstanceIdentifier.SerializeToString,
+      ),
+      'GetField': grpc.unary_unary_rpc_method_handler(
+          servicer.GetField,
+          request_deserializer=tetrispace__pb2.InstanceIdentifier.FromString,
+          response_serializer=tetrispace__pb2.FieldKey.SerializeToString,
+      ),
+      'GetFieldStatusStream': grpc.unary_stream_rpc_method_handler(
+          servicer.GetFieldStatusStream,
+          request_deserializer=tetrispace__pb2.FieldKey.FromString,
+          response_serializer=tetrispace__pb2.FieldStatus.SerializeToString,
       ),
       'ListInstances': grpc.unary_unary_rpc_method_handler(
           servicer.ListInstances,
@@ -114,11 +136,6 @@ def add_TetrispaceServicer_to_server(servicer, server):
           servicer.DeleteInstance,
           request_deserializer=tetrispace__pb2.InstanceIdentifier.FromString,
           response_serializer=tetrispace__pb2.DeleteInstanceReturn.SerializeToString,
-      ),
-      'GetField': grpc.unary_unary_rpc_method_handler(
-          servicer.GetField,
-          request_deserializer=tetrispace__pb2.FieldKey.FromString,
-          response_serializer=tetrispace__pb2.Field.SerializeToString,
       ),
       'SetReady': grpc.unary_unary_rpc_method_handler(
           servicer.SetReady,

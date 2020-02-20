@@ -3,17 +3,24 @@ package tetrispace;
 
 service Tetrispace {
     // Creates a new tetri.space instance and returns the instance identifier string
-    rpc CreateInstance(InstanceParameter) returns (InstanceAndFields) {}
+    rpc CreateInstance(InstanceParameter) returns (InstanceIdentifier) {}
+    rpc GetField(InstanceIdentifier) returns (FieldKey) {}
+    rpc GetFieldStatusStream(FieldKey) returns (stream FieldStatus) {}
     rpc ListInstances(ListInstancesParams) returns (Instances) {}
     rpc GetInstance(InstanceIdentifier) returns (Instance) {}
     rpc DeleteInstance(InstanceIdentifier) returns (DeleteInstanceReturn) {}
-    rpc GetField(FieldKey) returns (Field) {}
+    
     rpc SetReady(FieldKey) returns (Status) {}
 }
 
 message Status { }
 message DeleteInstanceReturn { }
 message ListInstancesParams { }
+message FieldStatus {
+    uint32 max_fields = 1;
+    uint32 fields = 2;
+    string game_over = 3;
+}
 message Field {
     uint32 fields = 1;
     uint32 height = 2;
@@ -29,30 +36,33 @@ message Field {
 }
 message Instance {
     InstanceIdentifier instance_id = 1;
-    uint32 fields = 2;
-    repeated uint32 states = 3;
-    uint32 height = 4;
-    uint32 width = 5;
-    uint32 stat_count_moves = 6;
-    uint32 stat_count_tetrominos = 7;
-    uint32 stat_count_steps = 8;
-    repeated string current_tetrominos = 9;
-    repeated uint32 current_tetrominos_x = 10;
-    repeated uint32 current_tetrominos_y = 11;
-    repeated string next_tetrominos = 12;
+    string random_word = 2;
+    uint32 fields = 3;
+    repeated uint32 states = 4;
+    uint32 height = 5;
+    uint32 width = 6;
+    uint32 stat_count_moves = 7;
+    uint32 stat_count_tetrominos = 8;
+    uint32 stat_count_steps = 9;
+    repeated string current_tetrominos = 10;
+    repeated uint32 current_tetrominos_x = 11;
+    repeated uint32 current_tetrominos_y = 12;
+    repeated string next_tetrominos = 13;
 }
 message Instances {
     repeated Instance list = 1;
 }
 message InstanceAndFields {
     InstanceIdentifier instance_id = 1;
-    repeated string field_keys = 2;
+    string random_word = 2;
+    repeated string field_keys = 3;
 }
 message FieldKey {
     string uuid = 1;
 }
 message InstanceIdentifier {
     string uuid = 1;
+    string random_word = 2;
 }
 message InstanceParameter{
     uint32 fields = 1;

@@ -1,5 +1,6 @@
 import os, sys
 import random
+import threading
 import pygame
 import pygame_gui
 
@@ -39,6 +40,24 @@ class Field:
     def blit(self):
         self.surface.blit(self.field_bg, self.pos)
 
+class FieldStatusThread(threading.Thread):
+    def __init__(self, field_status_stream, client):
+        threading.Thread.__init__(self)
+        self.field_status_stream = field_status_stream
+        self.loop = True
+        self.client = client
+    
+    def stop(self):
+        self.loop = False
+    
+    def run(self):
+        while self.loop:
+            field_status = next(self.field_status_stream)
+            self.client.set_field_status(field_status)
+        #while self.loop:
+        #    field_status = next(self.field_status_stream)
+        #    #print(field_status)
+
 class TetriSpaceClient:
     def __init__(self, factor):
         # UI
@@ -61,8 +80,8 @@ class TetriSpaceClient:
         # Connection via grpc
         self.channel = None
         self.stub = None
-        self.instanceAndFields = None
-        self.myKey = None
+        self.instance = None
+        self.field_key = None
 
         # Game logic
         self.is_running = True
@@ -72,29 +91,33 @@ class TetriSpaceClient:
         self.stub = tetrispace_pb2_grpc.TetrispaceStub(self.channel)
 
         if create:
-            self.instanceAndFields = self.stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6,height=24,width=12))
+            self.instance = self.stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6,height=24,width=12))
+            self.random_word_entry.set_text(self.instance.random_word)
             self.create_button.disable()
-            self.join_button.disable()
-            self.myField = self.instanceAndFields.field_keys.pop()
-            self.myField_entry.set_text(self.myField)
         else:
-            self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField_entry.get_text()))
+            self.field_key = self.stub.GetField(tetrispace_pb2.InstanceIdentifier(random_word=self.random_word_entry.get_text()))
+            self.field_status_stream = self.stub.GetFieldStatusStream(self.field_key)
+            self.field_status_thread = FieldStatusThread(self.field_status_stream, self)
+            self.field_status_thread.start()
+            self.join_button.set_text("Set ready")
 
     def disconnect_game(self):
-        if self.instanceAndFields:
-            self.stub.DeleteInstance(self.instanceAndFields.instance_id)
+        if self.instance:
+            self.stub.DeleteInstance(self.instance)
 
         if self.channel:
             self.channel.close()
         
-    def set_field_data(self):
+    def set_field_status(self, field_status):
+        print(f"field_status.max_fields: {field_status.max_fields}, field_status.fields: {field_status.fields}")
         if(self.stub):
-            field = self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField))
-            self.main_field.set_data(field.data)
+            pass
+            #field = self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField))
+            #self.main_field.set_data(field.data)
 
-            field_size = field.height * field.width
-            for idx, field_ui in enumerate(self.fields):
-                field_ui.set_data(field.others[idx*field_size:idx*field_size+field_size])
+            #field_size = field.height * field.width
+            #for idx, field_ui in enumerate(self.fields):
+            #    field_ui.set_data(field.others[idx*field_size:idx*field_size+field_size])
         
 
     def blit(self):
@@ -103,37 +126,37 @@ class TetriSpaceClient:
         self.main_field.blit()
     
     def draw_gui(self, manager, factor):
-        mykey_pos    = (4*factor,   0*factor+2), (10*factor,  1*factor)
+        random_word_pos    = (8*factor,   0*factor+2), (6*factor,   1*factor)
         me_pos       = (1*factor,   1*factor),   (6*factor,  12*factor)
         next_pos     = (8*factor,   1*factor),   (4*factor,   4*factor)
         specials_pos = (8*factor,   4*factor),   (1*factor,  18*factor)
-        join_pos     = (0*factor,   0*factor),   (4*factor,   1*factor)
-        create_pos   = (21*factor, 15*factor),   (4*factor,   1*factor)
-        entry_pos    = (14*factor, 15*factor+2), (7*factor,   1*factor)
+        join_pos     = (4*factor,   0*factor),   (4*factor,   1*factor)
+        create_pos   = (0*factor,   0*factor),   (4*factor,   1*factor)
         f_pos        = (23*factor,  0*factor),   (1*factor,   1*factor)
         x_pos        = (24*factor,  0*factor),   (1*factor,   1*factor)
-        number_1_pos = (12*factor,  1*factor),   (4*factor,   8*factor)
-        number_2_pos = (15*factor,  1*factor),   (4*factor,   8*factor)
-        number_3_pos = (20*factor,  1*factor),   (4*factor,   8*factor)
-        number_4_pos = (12*factor,  6*factor),   (4*factor,   8*factor)
-        number_5_pos = (15*factor,  6*factor),   (4*factor,   8*factor)
-        number_6_pos = (20*factor,  6*factor),   (4*factor,   8*factor)
+        #number_1_pos = (12*factor,  1*factor),   (4*factor,   8*factor)
+        #number_2_pos = (15*factor,  1*factor),   (4*factor,   8*factor)
+        #number_3_pos = (20*factor,  1*factor),   (4*factor,   8*factor)
+        #number_4_pos = (12*factor,  6*factor),   (4*factor,   8*factor)
+        #number_5_pos = (15*factor,  6*factor),   (4*factor,   8*factor)
+        #number_6_pos = (20*factor,  6*factor),   (4*factor,   8*factor)
 
         self.join_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(join_pos[0], join_pos[1]), text='Join', manager=manager)
         self.create_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(create_pos[0], create_pos[1]), text='Create', manager=manager)
         self.fullscreen_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(f_pos[0], f_pos[1]), text='F', manager=manager)
         self.exit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(x_pos[0], x_pos[1]), text='X', manager=manager)
-        self.server_entry = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(relative_rect=pygame.Rect(entry_pos[0], entry_pos[1]), manager=manager)
-        self.server_entry.set_text("localhost:5000")
-        self.myField_entry = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(relative_rect=pygame.Rect(mykey_pos[0], mykey_pos[1]), manager=manager)
+        self.random_word_entry = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(relative_rect=pygame.Rect(random_word_pos[0], random_word_pos[1]), manager=manager)
         
     def start(self):
         while self.is_running:
             self.loop()
             pygame.display.flip()
         
+        if self.field_status_stream:
+            self.field_status_thread.stop()
+            self.field_status_thread.join()
         self.disconnect_game()
-    
+
     def quit(self):
         self.is_running = False
     
@@ -160,13 +183,12 @@ class TetriSpaceClient:
                 if event.ui_element == self.exit_button:
                     self.quit()
                 if event.ui_element == self.join_button:
-                    self.join_game(self.server_entry.get_text(), create=False)
+                    self.join_game("localhost:5000", create=False)
                 if event.ui_element == self.create_button:
-                    self.join_game(self.server_entry.get_text(), create=True)
+                    self.join_game("localhost:5000", create=True)
             self.manager.process_events(event)
         self.manager.update(time_delta)
         self.manager.draw_ui(self.window_surface)
-        self.set_field_data()
         self.blit()
         pygame.display.update()
 
