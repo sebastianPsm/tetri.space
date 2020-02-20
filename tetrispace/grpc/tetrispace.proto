@@ -7,8 +7,8 @@ service Tetrispace {
     rpc ListInstances(ListInstancesParams) returns (Instances) {}
     rpc GetInstance(InstanceIdentifier) returns (Instance) {}
     rpc DeleteInstance(InstanceIdentifier) returns (DeleteInstanceReturn) {}
-    rpc GetField(InstanceIdentifier) returns (Field) {}
-    rpc SetReady(InstanceAndFields) returns (Status) {}
+    rpc GetField(FieldKey) returns (Field) {}
+    rpc SetReady(FieldKey) returns (Status) {}
 }
 
 message Status { }
@@ -18,7 +18,14 @@ message Field {
     uint32 fields = 1;
     uint32 height = 2;
     uint32 width = 3;
-    repeated uint32 data = 4 [packed=true];
+
+    string current_tetromino = 4;
+    uint32 current_tetromino_x = 5;
+    uint32 current_tetromino_y = 6;
+    string next_tetromino = 7;
+
+    repeated uint32 data = 8 [packed=true];
+    repeated uint32 others = 9 [packed=true];
 }
 message Instance {
     InstanceIdentifier instance_id = 1;
@@ -40,6 +47,9 @@ message Instances {
 message InstanceAndFields {
     InstanceIdentifier instance_id = 1;
     repeated string field_keys = 2;
+}
+message FieldKey {
+    string uuid = 1;
 }
 message InstanceIdentifier {
     string uuid = 1;

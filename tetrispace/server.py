@@ -9,6 +9,7 @@ import core
 class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
     def __init__(self):
         self.INSTANCES = {}
+        self.FIELD_KEY = {}
 
     def CreateInstance(self, request, context):
         instance_id = str(uuid.uuid4())
@@ -19,6 +20,8 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
     
         field_keys_dict = self.INSTANCES[instance_id].field_keys
         field_keys = [item[0] for item in sorted(field_keys_dict.items(), key=lambda item: item[1])]
+        for key in field_keys:
+            self.FIELD_KEY[key] = instance_id
         
         instance_id = tetrispace_pb2.InstanceIdentifier(uuid=instance_id)
         return tetrispace_pb2.InstanceAndFields(instance_id=instance_id, field_keys=field_keys)
@@ -53,16 +56,30 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
         return tetrispace_pb2.DeleteInstanceReturn()
 
     def GetField(self, request, context):
-        instance = self.INSTANCES[request.uuid]
+        field_key = request.uuid
+        instance_key = self.FIELD_KEY[field_key]
+        instance = self.INSTANCES[instance_key]
+        fields, others, current_tetromino, next_tetromino = instance.get_field(field_key)
 
         data = []
-        for field in instance.field.tolist():
-            for row in field:
-                for col in row:
-                    data.append(col)
+        for row in fields.tolist():
+            data += row
+        
+        other_data = []
+        for other in others.tolist():
+            for row in other:
+                other_data += row
 
         print(f"GetField, {request.uuid}")
-        return tetrispace_pb2.Field(fields=instance.fields, height=instance.field_height, width=instance.field_width, data=data)
+        return tetrispace_pb2.Field(fields=instance.fields, 
+                                    height=instance.field_height,
+                                    width=instance.field_width,
+                                    current_tetromino=current_tetromino.type_string,
+                                    current_tetromino_x=current_tetromino.x,
+                                    current_tetromino_y=current_tetromino.y,
+                                    next_tetromino=next_tetromino.type_string,
+                                    data=data,
+                                    others=other_data)
 
     def SetReady(self, request, context):
         instance_id = request.instance_id.uuid

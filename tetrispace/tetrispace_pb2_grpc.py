@@ -36,12 +36,12 @@ class TetrispaceStub(object):
         )
     self.GetField = channel.unary_unary(
         '/tetrispace.Tetrispace/GetField',
-        request_serializer=tetrispace__pb2.InstanceIdentifier.SerializeToString,
+        request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
         response_deserializer=tetrispace__pb2.Field.FromString,
         )
     self.SetReady = channel.unary_unary(
         '/tetrispace.Tetrispace/SetReady',
-        request_serializer=tetrispace__pb2.InstanceAndFields.SerializeToString,
+        request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
         response_deserializer=tetrispace__pb2.Status.FromString,
         )
 
@@ -117,12 +117,12 @@ def add_TetrispaceServicer_to_server(servicer, server):
       ),
       'GetField': grpc.unary_unary_rpc_method_handler(
           servicer.GetField,
-          request_deserializer=tetrispace__pb2.InstanceIdentifier.FromString,
+          request_deserializer=tetrispace__pb2.FieldKey.FromString,
           response_serializer=tetrispace__pb2.Field.SerializeToString,
       ),
       'SetReady': grpc.unary_unary_rpc_method_handler(
           servicer.SetReady,
-          request_deserializer=tetrispace__pb2.InstanceAndFields.FromString,
+          request_deserializer=tetrispace__pb2.FieldKey.FromString,
           response_serializer=tetrispace__pb2.Status.SerializeToString,
       ),
   }

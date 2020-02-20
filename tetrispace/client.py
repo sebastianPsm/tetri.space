@@ -39,11 +39,10 @@ class Field:
     def blit(self):
         self.surface.blit(self.field_bg, self.pos)
 
-
 class TetriSpaceClient:
     def __init__(self, factor):
-        window_size = 25*factor, 16*factor
-
+        # UI
+        window_size = 25*factor, 16*factor 
         pygame.init()
         pygame.display.set_caption("tetri.space test client")
         self.window_surface = pygame.display.set_mode(window_size)
@@ -53,25 +52,50 @@ class TetriSpaceClient:
         
         self.manager = pygame_gui.UIManager(window_size, os.path.join(os.path.dirname(__file__), 'data/theme.json'))
         self.clock = pygame.time.Clock()
-        self.is_running = True
 
         self.draw_gui(self.manager, factor)
 
         self.main_field = Field(self.window_surface, (factor, factor), (12,24), 20)
         self.fields = [Field(self.window_surface, (13*factor + (pos%3)*130, factor + (pos%2) * 250), (12,24), 9) for pos in range(6)]
-    
-    def create_game(self):
-        server = self.server_entry.get_text()
-        self.channel = grpc.insecure_channel(server)
-        self.stub = tetrispace_pb2_grpc.TetrispaceStub(self.channel)
-        instanceAndFields = self.stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6,height=24,width=12))
-        print(instanceAndFields)
 
-    
+        # Connection via grpc
+        self.channel = None
+        self.stub = None
+        self.instanceAndFields = None
+        self.myKey = None
+
+        # Game logic
+        self.is_running = True
+
+    def join_game(self, server_host, create=False):
+        self.channel = grpc.insecure_channel(server_host)
+        self.stub = tetrispace_pb2_grpc.TetrispaceStub(self.channel)
+
+        if create:
+            self.instanceAndFields = self.stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6,height=24,width=12))
+            self.create_button.disable()
+            self.join_button.disable()
+            self.myField = self.instanceAndFields.field_keys.pop()
+            self.myField_entry.set_text(self.myField)
+        else:
+            self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField_entry.get_text()))
+
+    def disconnect_game(self):
+        if self.instanceAndFields:
+            self.stub.DeleteInstance(self.instanceAndFields.instance_id)
+
+        if self.channel:
+            self.channel.close()
+        
     def set_field_data(self):
-        for field in self.fields:
-            field.set_data()
-        self.main_field.set_data()
+        if(self.stub):
+            field = self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField))
+            self.main_field.set_data(field.data)
+
+            field_size = field.height * field.width
+            for idx, field_ui in enumerate(self.fields):
+                field_ui.set_data(field.others[idx*field_size:idx*field_size+field_size])
+        
 
     def blit(self):
         for field in self.fields:
@@ -79,20 +103,21 @@ class TetriSpaceClient:
         self.main_field.blit()
     
     def draw_gui(self, manager, factor):
-        me_pos       = (1*factor,   1*factor), (6*factor,  12*factor)
-        next_pos     = (8*factor,   1*factor), (4*factor,   4*factor)
-        specials_pos = (8*factor,   4*factor), (1*factor,  18*factor)
-        join_pos     = (17*factor, 15*factor), (4*factor,   1*factor)
-        create_pos   = (21*factor, 15*factor), (4*factor,   1*factor)
-        entry_pos    = (10*factor, 15*factor+2), (7*factor,   1*factor)
-        f_pos        = (23*factor,  0*factor), (1*factor,   1*factor)
-        x_pos        = (24*factor,  0*factor), (1*factor,   1*factor)
-        number_1_pos = (12*factor,  1*factor), (4*factor,   8*factor)
-        number_2_pos = (15*factor,  1*factor), (4*factor,   8*factor)
-        number_3_pos = (20*factor,  1*factor), (4*factor,   8*factor)
-        number_4_pos = (12*factor,  6*factor), (4*factor,   8*factor)
-        number_5_pos = (15*factor,  6*factor), (4*factor,   8*factor)
-        number_6_pos = (20*factor,  6*factor), (4*factor,   8*factor)
+        mykey_pos    = (4*factor,   0*factor+2), (10*factor,  1*factor)
+        me_pos       = (1*factor,   1*factor),   (6*factor,  12*factor)
+        next_pos     = (8*factor,   1*factor),   (4*factor,   4*factor)
+        specials_pos = (8*factor,   4*factor),   (1*factor,  18*factor)
+        join_pos     = (0*factor,   0*factor),   (4*factor,   1*factor)
+        create_pos   = (21*factor, 15*factor),   (4*factor,   1*factor)
+        entry_pos    = (14*factor, 15*factor+2), (7*factor,   1*factor)
+        f_pos        = (23*factor,  0*factor),   (1*factor,   1*factor)
+        x_pos        = (24*factor,  0*factor),   (1*factor,   1*factor)
+        number_1_pos = (12*factor,  1*factor),   (4*factor,   8*factor)
+        number_2_pos = (15*factor,  1*factor),   (4*factor,   8*factor)
+        number_3_pos = (20*factor,  1*factor),   (4*factor,   8*factor)
+        number_4_pos = (12*factor,  6*factor),   (4*factor,   8*factor)
+        number_5_pos = (15*factor,  6*factor),   (4*factor,   8*factor)
+        number_6_pos = (20*factor,  6*factor),   (4*factor,   8*factor)
 
         self.join_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(join_pos[0], join_pos[1]), text='Join', manager=manager)
         self.create_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(create_pos[0], create_pos[1]), text='Create', manager=manager)
@@ -100,11 +125,14 @@ class TetriSpaceClient:
         self.exit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(x_pos[0], x_pos[1]), text='X', manager=manager)
         self.server_entry = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(relative_rect=pygame.Rect(entry_pos[0], entry_pos[1]), manager=manager)
         self.server_entry.set_text("localhost:5000")
+        self.myField_entry = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(relative_rect=pygame.Rect(mykey_pos[0], mykey_pos[1]), manager=manager)
         
     def start(self):
         while self.is_running:
             self.loop()
             pygame.display.flip()
+        
+        self.disconnect_game()
     
     def quit(self):
         self.is_running = False
@@ -132,9 +160,9 @@ class TetriSpaceClient:
                 if event.ui_element == self.exit_button:
                     self.quit()
                 if event.ui_element == self.join_button:
-                    print("join game")
+                    self.join_game(self.server_entry.get_text(), create=False)
                 if event.ui_element == self.create_button:
-                    self.create_game()
+                    self.join_game(self.server_entry.get_text(), create=True)
             self.manager.process_events(event)
         self.manager.update(time_delta)
         self.manager.draw_ui(self.window_surface)

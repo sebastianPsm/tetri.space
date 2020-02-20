@@ -160,8 +160,10 @@ class Core:
     # get tetromino boundaries
     left, right, top, bottom = current_tetromino.get_boundaries()
     tetrominos[top:bottom, left:right] = current_tetromino.type
-    
-    return self.field[field_id]+tetrominos
+
+    next_tetromino = self.next_tetrominos[field_id]
+        
+    return (self.field[field_id]+tetrominos, np.delete(self.field, field_id, axis=0), current_tetromino, next_tetromino)
   
   def get_fieldid_from_key_(self, key):
     if not key in self.field_keys:

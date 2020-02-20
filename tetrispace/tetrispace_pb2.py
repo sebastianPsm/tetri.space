@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='tetrispace',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x10tetrispace.proto\x12\ntetrispace\"\x08\n\x06Status\"\x16\n\x14\x44\x65leteInstanceReturn\"\x15\n\x13ListInstancesParams\"H\n\x05\x46ield\x12\x0e\n\x06\x66ields\x18\x01 \x01(\r\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r\x12\x10\n\x04\x64\x61ta\x18\x04 \x03(\rB\x02\x10\x01\"\xc2\x02\n\x08Instance\x12\x33\n\x0binstance_id\x18\x01 \x01(\x0b\x32\x1e.tetrispace.InstanceIdentifier\x12\x0e\n\x06\x66ields\x18\x02 \x01(\r\x12\x0e\n\x06states\x18\x03 \x03(\r\x12\x0e\n\x06height\x18\x04 \x01(\r\x12\r\n\x05width\x18\x05 \x01(\r\x12\x18\n\x10stat_count_moves\x18\x06 \x01(\r\x12\x1d\n\x15stat_count_tetrominos\x18\x07 \x01(\r\x12\x18\n\x10stat_count_steps\x18\x08 \x01(\r\x12\x1a\n\x12\x63urrent_tetrominos\x18\t \x03(\t\x12\x1c\n\x14\x63urrent_tetrominos_x\x18\n \x03(\r\x12\x1c\n\x14\x63urrent_tetrominos_y\x18\x0b \x03(\r\x12\x17\n\x0fnext_tetrominos\x18\x0c \x03(\t\"/\n\tInstances\x12\"\n\x04list\x18\x01 \x03(\x0b\x32\x14.tetrispace.Instance\"\\\n\x11InstanceAndFields\x12\x33\n\x0binstance_id\x18\x01 \x01(\x0b\x32\x1e.tetrispace.InstanceIdentifier\x12\x12\n\nfield_keys\x18\x02 \x03(\t\"\"\n\x12InstanceIdentifier\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"B\n\x11InstanceParameter\x12\x0e\n\x06\x66ields\x18\x01 \x01(\r\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r2\xc8\x03\n\nTetrispace\x12P\n\x0e\x43reateInstance\x12\x1d.tetrispace.InstanceParameter\x1a\x1d.tetrispace.InstanceAndFields\"\x00\x12I\n\rListInstances\x12\x1f.tetrispace.ListInstancesParams\x1a\x15.tetrispace.Instances\"\x00\x12\x45\n\x0bGetInstance\x12\x1e.tetrispace.InstanceIdentifier\x1a\x14.tetrispace.Instance\"\x00\x12T\n\x0e\x44\x65leteInstance\x12\x1e.tetrispace.InstanceIdentifier\x1a .tetrispace.DeleteInstanceReturn\"\x00\x12?\n\x08GetField\x12\x1e.tetrispace.InstanceIdentifier\x1a\x11.tetrispace.Field\"\x00\x12?\n\x08SetReady\x12\x1d.tetrispace.InstanceAndFields\x1a\x12.tetrispace.Status\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x10tetrispace.proto\x12\ntetrispace\"\x08\n\x06Status\"\x16\n\x14\x44\x65leteInstanceReturn\"\x15\n\x13ListInstancesParams\"\xc9\x01\n\x05\x46ield\x12\x0e\n\x06\x66ields\x18\x01 \x01(\r\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r\x12\x19\n\x11\x63urrent_tetromino\x18\x04 \x01(\t\x12\x1b\n\x13\x63urrent_tetromino_x\x18\x05 \x01(\r\x12\x1b\n\x13\x63urrent_tetromino_y\x18\x06 \x01(\r\x12\x16\n\x0enext_tetromino\x18\x07 \x01(\t\x12\x10\n\x04\x64\x61ta\x18\x08 \x03(\rB\x02\x10\x01\x12\x12\n\x06others\x18\t \x03(\rB\x02\x10\x01\"\xc2\x02\n\x08Instance\x12\x33\n\x0binstance_id\x18\x01 \x01(\x0b\x32\x1e.tetrispace.InstanceIdentifier\x12\x0e\n\x06\x66ields\x18\x02 \x01(\r\x12\x0e\n\x06states\x18\x03 \x03(\r\x12\x0e\n\x06height\x18\x04 \x01(\r\x12\r\n\x05width\x18\x05 \x01(\r\x12\x18\n\x10stat_count_moves\x18\x06 \x01(\r\x12\x1d\n\x15stat_count_tetrominos\x18\x07 \x01(\r\x12\x18\n\x10stat_count_steps\x18\x08 \x01(\r\x12\x1a\n\x12\x63urrent_tetrominos\x18\t \x03(\t\x12\x1c\n\x14\x63urrent_tetrominos_x\x18\n \x03(\r\x12\x1c\n\x14\x63urrent_tetrominos_y\x18\x0b \x03(\r\x12\x17\n\x0fnext_tetrominos\x18\x0c \x03(\t\"/\n\tInstances\x12\"\n\x04list\x18\x01 \x03(\x0b\x32\x14.tetrispace.Instance\"\\\n\x11InstanceAndFields\x12\x33\n\x0binstance_id\x18\x01 \x01(\x0b\x32\x1e.tetrispace.InstanceIdentifier\x12\x12\n\nfield_keys\x18\x02 \x03(\t\"\x18\n\x08\x46ieldKey\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\"\n\x12InstanceIdentifier\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"B\n\x11InstanceParameter\x12\x0e\n\x06\x66ields\x18\x01 \x01(\r\x12\x0e\n\x06height\x18\x02 \x01(\r\x12\r\n\x05width\x18\x03 \x01(\r2\xb5\x03\n\nTetrispace\x12P\n\x0e\x43reateInstance\x12\x1d.tetrispace.InstanceParameter\x1a\x1d.tetrispace.InstanceAndFields\"\x00\x12I\n\rListInstances\x12\x1f.tetrispace.ListInstancesParams\x1a\x15.tetrispace.Instances\"\x00\x12\x45\n\x0bGetInstance\x12\x1e.tetrispace.InstanceIdentifier\x1a\x14.tetrispace.Instance\"\x00\x12T\n\x0e\x44\x65leteInstance\x12\x1e.tetrispace.InstanceIdentifier\x1a .tetrispace.DeleteInstanceReturn\"\x00\x12\x35\n\x08GetField\x12\x14.tetrispace.FieldKey\x1a\x11.tetrispace.Field\"\x00\x12\x36\n\x08SetReady\x12\x14.tetrispace.FieldKey\x1a\x12.tetrispace.Status\"\x00\x62\x06proto3')
 )
 
 
@@ -127,8 +127,43 @@ _FIELD = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='data', full_name='tetrispace.Field.data', index=3,
-      number=4, type=13, cpp_type=3, label=3,
+      name='current_tetromino', full_name='tetrispace.Field.current_tetromino', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='current_tetromino_x', full_name='tetrispace.Field.current_tetromino_x', index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='current_tetromino_y', full_name='tetrispace.Field.current_tetromino_y', index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='next_tetromino', full_name='tetrispace.Field.next_tetromino', index=6,
+      number=7, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='tetrispace.Field.data', index=7,
+      number=8, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=_b('\020\001'), file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='others', full_name='tetrispace.Field.others', index=8,
+      number=9, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -145,8 +180,8 @@ _FIELD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=89,
-  serialized_end=161,
+  serialized_start=90,
+  serialized_end=291,
 )
 
 
@@ -253,8 +288,8 @@ _INSTANCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=164,
-  serialized_end=486,
+  serialized_start=294,
+  serialized_end=616,
 )
 
 
@@ -284,8 +319,8 @@ _INSTANCES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=488,
-  serialized_end=535,
+  serialized_start=618,
+  serialized_end=665,
 )
 
 
@@ -322,8 +357,39 @@ _INSTANCEANDFIELDS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=537,
-  serialized_end=629,
+  serialized_start=667,
+  serialized_end=759,
+)
+
+
+_FIELDKEY = _descriptor.Descriptor(
+  name='FieldKey',
+  full_name='tetrispace.FieldKey',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='uuid', full_name='tetrispace.FieldKey.uuid', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=761,
+  serialized_end=785,
 )
 
 
@@ -353,8 +419,8 @@ _INSTANCEIDENTIFIER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=631,
-  serialized_end=665,
+  serialized_start=787,
+  serialized_end=821,
 )
 
 
@@ -398,8 +464,8 @@ _INSTANCEPARAMETER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=667,
-  serialized_end=733,
+  serialized_start=823,
+  serialized_end=889,
 )
 
 _INSTANCE.fields_by_name['instance_id'].message_type = _INSTANCEIDENTIFIER
@@ -412,6 +478,7 @@ DESCRIPTOR.message_types_by_name['Field'] = _FIELD
 DESCRIPTOR.message_types_by_name['Instance'] = _INSTANCE
 DESCRIPTOR.message_types_by_name['Instances'] = _INSTANCES
 DESCRIPTOR.message_types_by_name['InstanceAndFields'] = _INSTANCEANDFIELDS
+DESCRIPTOR.message_types_by_name['FieldKey'] = _FIELDKEY
 DESCRIPTOR.message_types_by_name['InstanceIdentifier'] = _INSTANCEIDENTIFIER
 DESCRIPTOR.message_types_by_name['InstanceParameter'] = _INSTANCEPARAMETER
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -465,6 +532,13 @@ InstanceAndFields = _reflection.GeneratedProtocolMessageType('InstanceAndFields'
   })
 _sym_db.RegisterMessage(InstanceAndFields)
 
+FieldKey = _reflection.GeneratedProtocolMessageType('FieldKey', (_message.Message,), {
+  'DESCRIPTOR' : _FIELDKEY,
+  '__module__' : 'tetrispace_pb2'
+  # @@protoc_insertion_point(class_scope:tetrispace.FieldKey)
+  })
+_sym_db.RegisterMessage(FieldKey)
+
 InstanceIdentifier = _reflection.GeneratedProtocolMessageType('InstanceIdentifier', (_message.Message,), {
   'DESCRIPTOR' : _INSTANCEIDENTIFIER,
   '__module__' : 'tetrispace_pb2'
@@ -481,6 +555,7 @@ _sym_db.RegisterMessage(InstanceParameter)
 
 
 _FIELD.fields_by_name['data']._options = None
+_FIELD.fields_by_name['others']._options = None
 
 _TETRISPACE = _descriptor.ServiceDescriptor(
   name='Tetrispace',
@@ -488,8 +563,8 @@ _TETRISPACE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=736,
-  serialized_end=1192,
+  serialized_start=892,
+  serialized_end=1329,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateInstance',
@@ -532,7 +607,7 @@ _TETRISPACE = _descriptor.ServiceDescriptor(
     full_name='tetrispace.Tetrispace.GetField',
     index=4,
     containing_service=None,
-    input_type=_INSTANCEIDENTIFIER,
+    input_type=_FIELDKEY,
     output_type=_FIELD,
     serialized_options=None,
   ),
@@ -541,7 +616,7 @@ _TETRISPACE = _descriptor.ServiceDescriptor(
     full_name='tetrispace.Tetrispace.SetReady',
     index=5,
     containing_service=None,
-    input_type=_INSTANCEANDFIELDS,
+    input_type=_FIELDKEY,
     output_type=_STATUS,
     serialized_options=None,
   ),
