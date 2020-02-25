@@ -29,6 +29,11 @@ class TetrispaceStub(object):
         request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
         response_deserializer=tetrispace__pb2.FieldStatus.FromString,
         )
+    self.CloseField = channel.unary_unary(
+        '/tetrispace.Tetrispace/CloseField',
+        request_serializer=tetrispace__pb2.FieldKey.SerializeToString,
+        response_deserializer=tetrispace__pb2.FieldKey.FromString,
+        )
     self.ListInstances = channel.unary_unary(
         '/tetrispace.Tetrispace/ListInstances',
         request_serializer=tetrispace__pb2.ListInstancesParams.SerializeToString,
@@ -70,6 +75,13 @@ class TetrispaceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def GetFieldStatusStream(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CloseField(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -121,6 +133,11 @@ def add_TetrispaceServicer_to_server(servicer, server):
           servicer.GetFieldStatusStream,
           request_deserializer=tetrispace__pb2.FieldKey.FromString,
           response_serializer=tetrispace__pb2.FieldStatus.SerializeToString,
+      ),
+      'CloseField': grpc.unary_unary_rpc_method_handler(
+          servicer.CloseField,
+          request_deserializer=tetrispace__pb2.FieldKey.FromString,
+          response_serializer=tetrispace__pb2.FieldKey.SerializeToString,
       ),
       'ListInstances': grpc.unary_unary_rpc_method_handler(
           servicer.ListInstances,

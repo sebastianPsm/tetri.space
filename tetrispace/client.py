@@ -1,4 +1,5 @@
 import os, sys
+import functools
 import random
 import threading
 import pygame
@@ -54,9 +55,6 @@ class FieldStatusThread(threading.Thread):
         while self.loop:
             field_status = next(self.field_status_stream)
             self.client.set_field_status(field_status)
-        #while self.loop:
-        #    field_status = next(self.field_status_stream)
-        #    #print(field_status)
 
 class TetriSpaceClient:
     def __init__(self, factor):
@@ -82,24 +80,34 @@ class TetriSpaceClient:
         self.stub = None
         self.instance = None
         self.field_key = None
+        self.field_status_stream = None
 
         # Game logic
         self.is_running = True
-
-    def join_game(self, server_host, create=False):
-        self.channel = grpc.insecure_channel(server_host)
-        self.stub = tetrispace_pb2_grpc.TetrispaceStub(self.channel)
+    
+    def connected(self, future_context, create):
+        self.create_button.disable()
 
         if create:
             self.instance = self.stub.CreateInstance(tetrispace_pb2.InstanceParameter(fields=6,height=24,width=12))
             self.random_word_entry.set_text(self.instance.random_word)
-            self.create_button.disable()
-        else:
-            self.field_key = self.stub.GetField(tetrispace_pb2.InstanceIdentifier(random_word=self.random_word_entry.get_text()))
-            self.field_status_stream = self.stub.GetFieldStatusStream(self.field_key)
-            self.field_status_thread = FieldStatusThread(self.field_status_stream, self)
-            self.field_status_thread.start()
-            self.join_button.set_text("Set ready")
+        
+        self.field_key = self.stub.GetField(tetrispace_pb2.InstanceIdentifier(random_word=self.random_word_entry.get_text()))
+        self.field_status_stream = self.stub.GetFieldStatusStream(self.field_key)
+        self.field_status_thread = FieldStatusThread(self.field_status_stream, self)
+        self.field_status_thread.start()
+        self.join_button.set_text("Set ready")
+
+    def connect_server(self, server_host, create=False):
+        self.channel = grpc.insecure_channel(server_host)
+        self.stub = tetrispace_pb2_grpc.TetrispaceStub(self.channel)
+
+        future = grpc.channel_ready_future(self.channel)
+        future.add_done_callback(lambda future_context: self.connected(future_context, create))
+    
+    def set_ready(self):
+        self.stub.SetReady(self.field_key)
+        self.join_button.disable()
 
     def disconnect_game(self):
         if self.instance:
@@ -109,7 +117,8 @@ class TetriSpaceClient:
             self.channel.close()
         
     def set_field_status(self, field_status):
-        print(f"field_status.max_fields: {field_status.max_fields}, field_status.fields: {field_status.fields}")
+        print(f"field_status.max_fields: {field_status.max_fields}, field_status.fields: {field_status.fields}, field_status.set_ready_fields: {field_status.set_ready_fields}")
+
         if(self.stub):
             pass
             #field = self.stub.GetField(tetrispace_pb2.FieldKey(uuid=self.myField))
@@ -183,9 +192,12 @@ class TetriSpaceClient:
                 if event.ui_element == self.exit_button:
                     self.quit()
                 if event.ui_element == self.join_button:
-                    self.join_game("localhost:5000", create=False)
+                    if self.join_button.text == "Join":
+                        self.connect_server("localhost:5000", create=False)
+                    else:
+                        self.set_ready()
                 if event.ui_element == self.create_button:
-                    self.join_game("localhost:5000", create=True)
+                    self.connect_server("localhost:5000", create=True)
             self.manager.process_events(event)
         self.manager.update(time_delta)
         self.manager.draw_ui(self.window_surface)

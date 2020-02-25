@@ -25,11 +25,11 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
             "max_fields": request.fields,
             "fields": 0,
             "field_keys": {},
+            "set_ready": [],
             "height": request.height,
             "width": request.width,
             "random_word": random_word,
             "core": None
-            #c=core.Core(request.fields, request.height, request.width)
         }        
     
         #field_keys_dict = self.INSTANCES[instance_id].field_keys
@@ -60,10 +60,12 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
 
     def ListInstances(self, request, context):
         print(f"ListInstances")
+
         return tetrispace_pb2.Instances(list=list(map(lambda x: self._getInstance(x), self.INSTANCES)))
 
     def GetInstance(self, request, context):
         print(f"GetInstance, {request.uuid}")
+
         return self._getInstance(request.uuid)
 
     def DeleteInstance(self, request, context):
@@ -76,6 +78,7 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
 
     def GetField(self, request, context):
         print(f"GetField, {request.random_word}")
+
         random_word = request.random_word
         instance_key = self.RANDOM_WORDS[random_word]
         field_key = str(uuid.uuid4())
@@ -89,46 +92,65 @@ class TetrispaceService(tetrispace_pb2_grpc.TetrispaceServicer):
         self.FIELD_KEY[field_key] = instance_key
 
         return tetrispace_pb2.FieldKey(uuid=field_key)
-        
-        
-        # fields, others, current_tetromino, next_tetromino = instance.get_field(field_key)
 
-        #data = []
-        #for row in fields.tolist():
-        #    data += row
-        
-        #other_data = []
-        #for other in others.tolist():
-        #    for row in other:
-        #        other_data += row
+    def CloseField(FieldKey):
+        pass
 
-        #print(f"GetField, {request.uuid}")
-        #return tetrispace_pb2.Field(fields=instance.fields, 
-        #                            height=instance.field_height,
-        #                            width=instance.field_width,
-        #                            current_tetromino=current_tetromino.type_string,
-        #                            current_tetromino_x=current_tetromino.x,
-        #                            current_tetromino_y=current_tetromino.y,
-        #                            next_tetromino=next_tetromino.type_string,
-        #                            data=data,
-        #                            others=other_data)
+    def _fillFieldStatus(self, instance, field_key):
+        print(instance["set_ready"])
+        field_status = tetrispace_pb2.FieldStatus(max_fields=instance["max_fields"],
+                                                  set_ready_fields=len(instance["set_ready"]),
+                                                  fields=instance["fields"],
+                                                  height=instance["height"],
+                                                  width=instance["width"])
+        if(instance["core"]):
+            pass
+            #fields, others, current_tetromino, next_tetromino = instance["core"].get_field(field_key)
+
+            #data = []
+            #for row in fields.tolist():
+            #    data += row
+            
+            #other_data = []
+            #for other in others.tolist():
+            #    for row in other:
+            #        other_data += row
+            
+            
+            #field_status.current_tetromino = current_tetromino.type_string
+            #field_status.current_tetromino_x = current_tetromino.x
+            #field_status.current_tetromino_y = current_tetromino.y
+            #field_status.next_tetromino = next_tetromino.type_string
+            #field_status.data = data
+            #field_status.others = other_data
+        
+        return field_status
 
     def GetFieldStatusStream(self, request, context):
         print(f"GetFieldStatusStream, {request.uuid}")
         instance_id = self.FIELD_KEY[request.uuid]
+
         while True:
             time.sleep(1)
             if instance_id in self.INSTANCES:
-                res = tetrispace_pb2.FieldStatus(max_fields=self.INSTANCES[instance_id]["max_fields"], fields=self.INSTANCES[instance_id]["fields"])
+                res = self._fillFieldStatus(self.INSTANCES[instance_id], request.uuid)
             else:
                 res = tetrispace_pb2.FieldStatus(game_over="Because game creator has left")
             yield res
 
     def SetReady(self, request, context):
-        instance_id = request.instance_id.uuid
-        for field_key in request.field_keys:
-            self.INSTANCES[instance_id].ready(field_key)
         print(f"SetReady, {request.uuid}")
+
+        assert request.uuid in self.FIELD_KEY
+        instance_key = self.FIELD_KEY[request.uuid]
+        instance = self.INSTANCES[instance_key]
+
+        if not request.uuid in instance["set_ready"]:
+            instance["set_ready"].append(request.uuid)
+        
+        if len(instance["set_ready"]) == instance["fields"]:
+            instance["core"] = core.Core(instance["fields"], instance["height"], instance["width"])
+
         return tetrispace_pb2.Status()
 
 if __name__ == "__main__":
